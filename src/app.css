@@ -11,6 +11,10 @@
   gap: 20px;
 }
 
+.app__footer {
+  color: #d0d0d0;
+}
+
 .app__content {
   flex: 1;
   padding: 20px;

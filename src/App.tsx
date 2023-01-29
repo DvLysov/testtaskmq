@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import moment from 'moment'
 import { Button, Layout, Select } from 'antd';
 const { Header, Footer, Sider, Content } = Layout;
 const { Option } = Select;
@@ -6,8 +7,11 @@ const { Option } = Select;
 import './app.css';
 
 import DataService from './services/DataService';
+import IndexedDB from './services/IndexedDBService';
 import type { ItemData } from './types';
-import { EMode } from './types';
+import { EMode, TOptions } from './types';
+
+import { getOptions } from './utils';
 
 
 function App() {
@@ -15,6 +19,8 @@ function App() {
     const [isFetching, setIsFetching] = useState<boolean>(false);
     const [fromYear, setFromYear] = useState<number | null>(null);
     const [toYear, setToYear] = useState<number | null>(null);
+    const [temperatureOptions, setTemperatureOptions ] = useState<TOptions>([]);
+    const [precipitationOptions,  setPrecipitationOptions ] = useState<TOptions>([]);
 
     const [temperature, setTemperature] = useState<ItemData[]>([]);
     const [precipitation, setPrecipitation] = useState<ItemData[]>([]);
@@ -37,9 +43,25 @@ function App() {
 
                 if (modeRef.current === EMode.temperature) {
                     data = await DataService.getTemperature();
+
+                    const from =  moment(data[0].t, "YYYY-MM-DD").year();
+                    const to = moment(data[data.length-1].t, "YYYY-MM-DD").year();;
+                    const options = getOptions(to - from, from);
+
+                    console.log(options);
+
+                    setTemperatureOptions(options);
+
                     setTemperature(data);
                 } else if (modeRef.current === EMode.precipitation) {
                     data = await DataService.getPrecipitation();
+
+                    const from =  moment(data[0].t, "YYYY-MM-DD").year();
+                    const to = moment(data[data.length-1].t, "YYYY-MM-DD").year();;
+                    const options = getOptions( to - from, from);
+
+                    setPrecipitationOptions(options);
+
                     setPrecipitation(data);
                 }
 
@@ -55,12 +77,13 @@ function App() {
         setMode(mode)
     }
 
-    const from = [ 
-        {
-            id: 1,
-            value: '1'
-        } 
-    ]
+    let options: any = [];
+
+    if (mode === EMode.temperature) {
+        options = temperatureOptions;
+    } else if (mode === EMode.precipitation) {
+        options = precipitationOptions;
+    }
 
     return (
         <Layout >
@@ -96,12 +119,12 @@ function App() {
                             placeholder="Select FROM date..."
                             disabled={isFetching}
                         > 
-                            { (from || []).map( (item: any) => (
+                            { (options || []).map( (item: any) => (
                                 <Option
-                                    key={`from-option_${item.key}`}
-                                    title={item.value}
+                                    key={`from-option_${item}`}
+                                    title={item}
                                 >
-                                    {item.value}
+                                    {item}
                                 </Option>
                             ))}
                         </Select>
@@ -113,12 +136,12 @@ function App() {
                             placeholder="Select TO date..."
                             disabled={isFetching}
                         > 
-                            { (from || []).map( (item: any) => (
+                            { (options || []).map( (item: any) => (
                                 <Option
-                                    key={`from-option_${item.key}`}
-                                    title={item.value}
+                                    key={`from-option_${item}`}
+                                    title={item}
                                 >
-                                    {item.value}
+                                    {item}
                                 </Option>
                             ))}
                         </Select>

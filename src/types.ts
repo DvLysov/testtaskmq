@@ -5,3 +5,8 @@ export type ItemData = {
     /** value */
     v: number;
 };
+
+export enum EMode {
+    temperature = "temperature",
+    precipitation = "precipitation",
+}

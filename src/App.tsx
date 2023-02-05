@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useReducer } from 'react';
-import moment from 'moment'
-import { Button, Layout, Select } from 'antd';
+import moment from 'moment';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Button, Layout, Select, Spin } from 'antd';
 const { Header, Footer, Sider, Content } = Layout;
 const { Option } = Select;
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 import './app.css';
 
@@ -12,6 +14,11 @@ import type { ItemData } from './types';
 import { EMode, TOptions } from './types';
 
 import { getOptions } from './utils';
+
+const HEADER_PART_STYLE = {
+	flex: 1, 
+	minWidth: 220,
+}
 
 const DEFAULT_BTN_PROPS = {
 	size: "large",
@@ -25,23 +32,23 @@ const DEFAULT_SELECT_PROPS = {
 		minWidth: 220 
 	},
 }
-
-const HEADER_PART_STYLE = {
-	flex: 1, 
-	minWidth: 220,
-}
-
+// Sometimes we use @ts-ignore to simplify the programming process
 function App() {
+
+	// The App has two different modes: EMode.temperature and EMode.precipitation
 	const [mode, setMode] = useState<EMode>(EMode.temperature);
 	const modeRef = useRef<EMode>(EMode.temperature);
 
+	// The App has preloader and two selects for period selection
 	const [isFetching, setIsFetching] = useState<boolean>(false);
 	const [fromYear, setFromYear] = useState<number | null>(null);
 	const [toYear, setToYear] = useState<number | null>(null);
 	const [temperatureOptions, setTemperatureOptions ] = useState<TOptions>([]);
 	const [precipitationOptions,  setPrecipitationOptions ] = useState<TOptions>([]);
 
+	// The main data of app are:
 	const [temperature, setTemperature] = useState<ItemData[]>([]);
+	// Самые крупные дождевые капли в истории – не больше 7 мм в диаметре.
 	const [precipitation, setPrecipitation] = useState<ItemData[]>([]);
 
 	const temperatureStateRef = useRef<any>(null);
@@ -64,16 +71,15 @@ function App() {
 
 			let data: any;
 
-			const tdb: any = [];//await temperatureStateRef.current.getAll(EMode.temperature) || [];
-
-			const pdb: any = []; //await precipitationStateRef.current.getAll(EMode.precipitation) || [];
+			const tdb: any = await temperatureStateRef.current.getAll(EMode.temperature) || [];
+			const pdb: any = await precipitationStateRef.current.getAll(EMode.precipitation) || [];
 
 			const cond1 = Array.isArray(tdb) && tdb.length > 0 && modeRef.current === EMode.temperature ? true : false;
 			const cond2 = Array.isArray(pdb) && pdb.length > 0 && modeRef.current === EMode.precipitation ? true : false;
 
 			if (cond1 || cond2) {
 
-				console.log('from db', tdb);
+				// It's time to get data from IndexDB:
 
 				if (modeRef.current === EMode.temperature) {
 					data = tdb;
@@ -95,7 +101,7 @@ function App() {
 
 					const from =  moment(data[0].t, "YYYY-MM-DD").year();
 					const to = moment(data[data.length-1].t, "YYYY-MM-DD").year();;
-					const options = getOptions( to - from, from);
+					const options = getOptions(to - from, from);
 
 					setPrecipitationOptions(options);
 
@@ -107,6 +113,8 @@ function App() {
 				}
 
 			} else {
+
+				// It's time to fetch data from backend:
 
 				if (modeRef.current === EMode.temperature) {
 					data = await DataService.getTemperature();
@@ -130,7 +138,7 @@ function App() {
 
 					const from =  moment(data[0].t, "YYYY-MM-DD").year();
 					const to = moment(data[data.length-1].t, "YYYY-MM-DD").year();;
-					const options = getOptions( to - from, from);
+					const options = getOptions(to - from, from);
 
 					setPrecipitationOptions(options);
 
@@ -146,7 +154,7 @@ function App() {
 
 			setIsFetching(false);
 		})();
-	}, [mode]); // fromYear, toYear ??
+	}, [mode]); 
 
 	const handleModeBtnClick = (mode: EMode): void => {
 		//@ts-ignore
@@ -162,12 +170,15 @@ function App() {
 
 	let options: any = [];
 
+
+	// We choose options which depends upon current mode
 	if (mode === EMode.temperature) {
 		options = temperatureOptions;
 	} else if (mode === EMode.precipitation) {
 		options = precipitationOptions;
 	}
 
+	// It's time to render result:
 	return (
 		<Layout >
 			<Sider theme="light" className="app__side-menu" style={{height: '100vh'}}>
@@ -178,7 +189,7 @@ function App() {
 					onClick={ () => handleModeBtnClick(EMode.temperature) }
 					disabled={isFetching}
 				>
-					Температура
+					Temperature
 				</Button>
 				<Button 
 					{...DEFAULT_BTN_PROPS}
@@ -186,7 +197,7 @@ function App() {
 					onClick={ () => handleModeBtnClick(EMode.precipitation) }
 					disabled={isFetching}
 				>
-					Осадки
+					Precipitation
 				</Button>
 			</Sider>
 			<Layout style={{height: '100vh', minWidth: 440}}>
@@ -234,6 +245,21 @@ function App() {
 				</Header>
 				<Content className="app__content">
 
+					{ isFetching ?
+						<div 
+							className="app__content-loader"
+						>
+							<Spin 
+								size="large"
+								tip="Loading..."
+								indicator={antIcon} 
+							/>
+						</div>
+						
+						:
+						null
+					}
+
 					{ mode === EMode.temperature && !isFetching ?
 						<div>
 							{mode} data length: {temperature.length}
@@ -253,7 +279,7 @@ function App() {
 				</Content>
 				<Footer className="app__footer">
 					<div style={{padding: 20, width: '100%', textAlign: 'center'}}>
-						Изменения температуры и уровня осадков за последние годы.
+						Changes in temperature and precipitation in recent years.
 					</div>
 				</Footer>
 			</Layout>

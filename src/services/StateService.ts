@@ -37,6 +37,7 @@ export class StateService {
 			(db: any, oldVersion: number, newVersion: number) => {
 				switch (oldVersion) {
 					case 0: {
+						// Первый прибор для измерения температуры изобрёл Галилей.
 						db.createObjectStore("temperature");
 						db.createObjectStore("precipitation");
 					}

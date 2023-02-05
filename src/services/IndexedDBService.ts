@@ -7,13 +7,16 @@ class IndexedDBService {
 
 			this.db = null;
 
+			// We check indexedDB support
 			//@ts-ignore
 			if ( !(window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB) ) {
-				reject('not supported');
+				reject('indexedDB not supported');
 			}
 
+			// We open database. dbName - name of database, dbVersion - version of database
 			const dbOpen = indexedDB.open(dbName, dbVersion);
 
+			// We set callbacks
 			if (dbUpgrade) {
 				dbOpen.onupgradeneeded = e => {
 					dbUpgrade(dbOpen.result, e.oldVersion, e.newVersion);
@@ -44,6 +47,7 @@ class IndexedDBService {
 
 			objectStore.put(value, rowKey);
 
+			// We set transaction callbacks
 			transaction.oncomplete = () => {
 				resolve(true);
 			};
@@ -64,6 +68,7 @@ class IndexedDBService {
 				objectStore.put(data[j], data[j].t);
 			}
 
+			// We set transaction callbacks
 			transaction.oncomplete = () => {
 				resolve(true);
 			};
@@ -81,6 +86,7 @@ class IndexedDBService {
 
 			request = objectStore.get(rowKey);
 
+			// We set request callbacks
 			request.onsuccess = () => {
 				resolve(request.result);
 			};
@@ -102,6 +108,7 @@ class IndexedDBService {
 			} else {
 				let result: any[] = [];
 
+				// We set callback
 				objectStore.openCursor().onsuccess = (event: any) => {
 					var cursor = event.target.result;
 					if (cursor) {

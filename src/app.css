@@ -1,32 +1,32 @@
 .app__header,
 .app__footer {
-  background: #fff;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  padding: 0 20px;
-  min-height: 64px;
-  height: auto;
-  gap: 20px;
+	background: #fff;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	padding: 0 20px;
+	min-height: 64px;
+	height: auto;
+	gap: 20px;
 }
 
 .app__footer {
-  color: #d0d0d0;
+	color: #d0d0d0;
 }
 
 .app__content {
-  flex: 1;
-  padding: 20px;
+	flex: 1;
+	padding: 20px;
 }
 
 .app__side-menu {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 }
 
 .app__side-menu--btn {
-    margin: '0px 20px';
-    text-align: left;
+		margin: '0px 20px';
+		text-align: left;
 }

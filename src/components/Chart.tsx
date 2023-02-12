@@ -23,11 +23,12 @@ const valueGetter = (obj: ItemData) =>
  */
 const getAverageValue = (arr: ItemData[], fromIndx: number, toIndx: number) => {
 	let s = 0;
-	for (let k = fromIndx; k <= toIndx; k++) {
+	for (let k = fromIndx; k < toIndx; k++) {
 		const v = valueGetter(arr[k]);
 		s += v;
 	}
-	return ( s / ( toIndx - fromIndx ) );
+
+	return ( s / (toIndx - fromIndx + 1) );
 }
 
 const getY = (height: number, value: number, maxH: number) => 
@@ -47,11 +48,10 @@ const draw = (inputData: ItemData[], fromYear: number, toYear: number,  ctx: any
 	if ( Math.floor(inputData.length / ctx.canvas.width) > 1 ) {
 		let averagingInterval: number = Math.ceil(inputData.length / ctx.canvas.width);
 		for (let k=0; k < Math.floor(inputData.length/averagingInterval);k++) {
-			const averageV = getAverageValue(inputData, averagingInterval*k, (averagingInterval*(k+1)) - 1);
+			const averageV = getAverageValue(inputData, averagingInterval*k, (averagingInterval*(k+1)) );
 			data.push(averageV);
 		}
 	} else {
-		console.log('----------- b ------------');
 		for (let k = 0; k < inputData.length; k++) {
 			data.push( valueGetter(inputData[k]) );
 		}

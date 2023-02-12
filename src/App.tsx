@@ -241,7 +241,7 @@ function App() {
 						> 
 							{ (options || []).map( (item: any) => (
 								<Option
-									key={`from-option_${item}`}
+									key={`to-option_${item}`}
 									title={item}
 									value={item}
 									disabled={fromYear && item < fromYear ? true : false}

@@ -15,9 +15,17 @@
 	color: #d0d0d0;
 }
 
+.app__footer-text {
+	padding: 20px; 
+	width: 100%; 
+	text-align: center;
+}
+
 .app__content {
 	flex: 1;
 	padding: 20px;
+	min-width: 600px;
+	min-height: 600px;
 }
 
 .app__content-loader {
@@ -36,6 +44,10 @@
 }
 
 .app__side-menu--btn {
-		margin: '0px 20px';
 		text-align: left;
+}
+
+.chart-wrapper {
+	width: 100%; 
+	height: 100%;
 }

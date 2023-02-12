@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useReducer } from 'react';
 import moment from 'moment';
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, LineChartOutlined, CloudDownloadOutlined } from '@ant-design/icons';
 import { Button, Layout, Select, Spin } from 'antd';
 const { Header, Footer, Sider, Content } = Layout;
 const { Option } = Select;
@@ -14,6 +14,8 @@ import type { ItemData } from './types';
 import { EMode, TOptions } from './types';
 
 import { getOptions } from './utils';
+
+import Chart from './components/Chart';
 
 const HEADER_PART_STYLE = {
 	flex: 1, 
@@ -32,6 +34,8 @@ const DEFAULT_SELECT_PROPS = {
 		minWidth: 220 
 	},
 }
+
+
 // Sometimes we use @ts-ignore to simplify the programming process
 function App() {
 
@@ -170,12 +174,15 @@ function App() {
 
 	let options: any = [];
 
+	let chartData: ItemData[] = [];
 
-	// We choose options which depends upon current mode
+	// We choose options and chartData which depends upon current mode
 	if (mode === EMode.temperature) {
 		options = temperatureOptions;
+		chartData = temperature;
 	} else if (mode === EMode.precipitation) {
 		options = precipitationOptions;
+		chartData = precipitation;
 	}
 
 	// It's time to render result:
@@ -188,6 +195,7 @@ function App() {
 					type={ mode === EMode.temperature ? "primary" : void 0 }
 					onClick={ () => handleModeBtnClick(EMode.temperature) }
 					disabled={isFetching}
+					icon={<LineChartOutlined />}
 				>
 					Temperature
 				</Button>
@@ -196,6 +204,7 @@ function App() {
 					type={ mode === EMode.precipitation ? "primary" : void 0 }
 					onClick={ () => handleModeBtnClick(EMode.precipitation) }
 					disabled={isFetching}
+					icon={<CloudDownloadOutlined />}
 				>
 					Precipitation
 				</Button>
@@ -215,7 +224,7 @@ function App() {
 									key={`from-option_${item}`}
 									title={item}
 									value={item}
-									disabled={toYear && item >= toYear ? true : false}
+									disabled={toYear && item > toYear ? true : false}
 								>
 									{item}
 								</Option>
@@ -235,7 +244,7 @@ function App() {
 									key={`from-option_${item}`}
 									title={item}
 									value={item}
-									disabled={fromYear && item <= fromYear ? true : false}
+									disabled={fromYear && item < fromYear ? true : false}
 								>
 									{item}
 								</Option>
@@ -255,30 +264,18 @@ function App() {
 								indicator={antIcon} 
 							/>
 						</div>
-						
 						:
-						null
-					}
-
-					{ mode === EMode.temperature && !isFetching ?
-						<div>
-							{mode} data length: {temperature.length}
-						</div>
-						:
-						null
-					}
-
-					{ mode === EMode.precipitation && !isFetching ?
-						<div>
-							{mode} data length: {precipitation.length}
-						</div>
-						:
-						null
+						<Chart 
+							mode={mode}
+							fromYear={fromYear}
+							toYear={toYear}
+							data={chartData}
+						/>
 					}
 
 				</Content>
 				<Footer className="app__footer">
-					<div style={{padding: 20, width: '100%', textAlign: 'center'}}>
+					<div className="app__footer-text">
 						Changes in temperature and precipitation in recent years.
 					</div>
 				</Footer>

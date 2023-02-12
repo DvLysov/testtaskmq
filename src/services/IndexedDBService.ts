@@ -25,7 +25,7 @@ class IndexedDBService {
 
 			dbOpen.onsuccess = () => {
 				this.db = dbOpen.result;
-				resolve( this );
+				resolve(this);
 			};
 
 			dbOpen.onerror = (e: any)  => {
@@ -108,8 +108,10 @@ class IndexedDBService {
 			} else {
 				let result: any[] = [];
 
-				// We set callback
-				objectStore.openCursor().onsuccess = (event: any) => {
+				const getCursorRequest = objectStore.openCursor();
+
+				// We set cursor callback
+				getCursorRequest.onsuccess = (event: any) => {
 					var cursor = event.target.result;
 					if (cursor) {
 						result.push(cursor.value);
@@ -124,21 +126,3 @@ class IndexedDBService {
 }
 
 export default IndexedDBService;
-
-/*
-let ii = 0;
-
-	putNext();
-
-	function putNext() {
-		if (ii < data.length) {
-			console.log(data[ii]);
-			objectStore.put(data[ii], 'key').onsuccess = putNext;
-			++ii;
-		} else {
-			resolve(true);
-			ii = 0;
-			cb();
-		}
-	}
-*/

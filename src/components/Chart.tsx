@@ -145,12 +145,14 @@ function Chart(props: {
 	data: ItemData[]
 }) {
 
-	// Pick the data items from current Interval(fromYear, toYear)
-	const filteredItems = (props.data || []).filter( (item: ItemData) => {
-		const c = moment(item.t, 'YYYY-MM-DD').year();
-		const cond = props.fromYear && props.toYear && c >= props.fromYear && c <= props.toYear ? true : false;
-		return cond;
-	});
+	let filteredItems: ItemData[] = [];
+
+	if (props.fromYear && props.toYear) {
+		// Pick the data items from current Interval(fromYear, toYear)
+		const f = moment(props.fromYear - 1, 'YYYY').endOf('year').format('YYYY-MM-DD');
+		const t = moment(props.toYear + 1, 'YYYY').startOf('year').format('YYYY-MM-DD');
+		filteredItems = (props.data || []).filter( (item: ItemData) => ( item.t > f && item.t < t ? true : false ) );
+	}
 
 	return (
 		<div className="chart-wrapper">
